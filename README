@@ -3,3 +3,7 @@ TODO
 - robots.txt
 - page rank
 - browsing index
+
+- celltable zamiast flextable
+- paging
+- zmienic startowy url wg schematu: 127.0.0.1:8888/searchengine.html zamiast /searchengine/searchengine.html

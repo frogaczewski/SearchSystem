@@ -23,11 +23,13 @@ object docFactory {
 		docs
 	}
 
-	private def buildDocument(page : PageEntity) : Document = {
+	def buildDocument(page : PageEntity) : Document = {
 		val document = new Document
 		document.add(new Field("keywords", page.keywords.getOrElse(""), Field.Store.NO, Field.Index.ANALYZED))
 		document.add(new Field("description", page.description.getOrElse(""), Field.Store.YES, Field.Index.ANALYZED))
 		document.add(new Field("url", page.url, Field.Store.YES, Field.Index.NO))
+		document.add(new Field("title", page.title.getOrElse(""), Field.Store.YES, Field.Index.ANALYZED))
+		document.add(new Field("body", page.body.getOrElse(""), Field.Store.NO, Field.Index.ANALYZED))
 		document.setBoost(1.0f)
 		document
 	}

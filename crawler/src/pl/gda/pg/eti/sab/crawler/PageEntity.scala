@@ -41,8 +41,10 @@ class PageEntity(val url : String, val depth : Int) {
 		new Source(get.getResponseBodyAsStream)
 	}
 
+	val title = htmlContentUtil.pageTitle(source)
 	val keywords = htmlContentUtil.metaKeywords(source)
 	val description = htmlContentUtil.metaDescription(source)
 	val links : mutable.Set[String] = htmlContentUtil.links(source)
+	val body = htmlContentUtil.body(source)
 
 }

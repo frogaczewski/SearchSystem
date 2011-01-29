@@ -27,9 +27,8 @@ object Indexer extends Actor {
 
 	private def index() : Unit = {
 		log.info("Indexer started.")
-	    val docs = docFactory.makeModel(PageFactory.pageMap.valuesIterator)
 		// TODO set boost from page rank
-		new HtmlIndexer(docs, CrawlerPropertiesReader.indexDirectory).index
+		new HtmlIndexer(PageFactory.pageMap.valuesIterator, CrawlerPropertiesReader.indexDirectory).index
 	}
 
 }

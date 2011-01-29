@@ -8,12 +8,13 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.index.IndexWriter
 import org.apache.log4j.Logger
 import org.apache.lucene.util.{Version => LuceneVersion}
+import pl.gda.pg.eti.sab.crawler.PageEntity
 
 /**
  * 
  * @author Filip Rogaczewski
  */
-class HtmlIndexer(val docs : mutable.Set[Document], val directory : String) {
+class HtmlIndexer(val pages : Iterator[PageEntity], val directory : String) {
 
 	lazy val log = Logger.getLogger(this.getClass.getCanonicalName)
 
@@ -21,8 +22,10 @@ class HtmlIndexer(val docs : mutable.Set[Document], val directory : String) {
 	private val writer = new IndexWriter(dir, new StandardAnalyzer(LuceneVersion.LUCENE_30), true, IndexWriter.MaxFieldLength.UNLIMITED)
 
 	def index() : Unit = {
-		log.info("Indexing " + docs.size + " documents")
-		docs.foreach(writer.addDocument(_))
+		log.info("Indexing all documents")
+		pages.foreach((page : PageEntity) =>
+			writer.addDocument(docFactory.buildDocument(page))
+		)
 		writer.optimize
 		writer.close
 		log.info("All document indexed")

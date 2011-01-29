@@ -23,5 +23,6 @@ object CrawlerPropertiesReader {
 	def crawlerTimeout = properties.get("pl.gda.eti.sab.crawler.thread.timeout").asInstanceOf[String].toLong
 	def connectionTimeout = properties.get("pl.gda.eti.sab.crawler.connection.timeout").asInstanceOf[String].toLong
 	def indexDirectory = properties.get("pl.gda.eti.sab.crawler.index.dir").asInstanceOf[String]
+	def searchFuzzyFactor = properties.get("pl.gda.eti.sab.crawler.search.fuzzy.factor").asInstanceOf[String]
 
 }

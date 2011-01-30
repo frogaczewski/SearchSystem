@@ -29,7 +29,11 @@ object PageFactory {
 	}
 }
 
-
+/**
+ * Entity representing html document.
+ *
+ * @author Filip Rogaczewski
+ */
 class PageEntity(val url : String, val depth : Int) {
 
 	lazy val source : Source = {
@@ -46,5 +50,13 @@ class PageEntity(val url : String, val depth : Int) {
 	val description = htmlContentUtil.metaDescription(source)
 	val links : mutable.Set[String] = htmlContentUtil.links(source)
 	val body = htmlContentUtil.body(source)
+	var pageRank = 1.0d
 
+	/**
+	 * Returns true if this page references given page url,
+	 * false if not.
+	 */
+	def references(pageUrl : String) : Boolean = {
+		links.contains(pageUrl)
+	}
 }

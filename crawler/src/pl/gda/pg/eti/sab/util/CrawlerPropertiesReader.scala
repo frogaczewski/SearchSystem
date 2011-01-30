@@ -22,7 +22,10 @@ object CrawlerPropertiesReader {
 	def crawlerThreadPoolSize = properties.get("pl.gda.eti.sab.crawler.threadpool.size").asInstanceOf[String].toInt
 	def crawlerTimeout = properties.get("pl.gda.eti.sab.crawler.thread.timeout").asInstanceOf[String].toLong
 	def connectionTimeout = properties.get("pl.gda.eti.sab.crawler.connection.timeout").asInstanceOf[String].toLong
-	def indexDirectory = properties.get("pl.gda.eti.sab.crawler.index.dir").asInstanceOf[String]
-	def searchFuzzyFactor = properties.get("pl.gda.eti.sab.crawler.search.fuzzy.factor").asInstanceOf[String]
+	def indexDirectory = properties.get("pl.gda.eti.sab.indexer.index.dir").asInstanceOf[String]
+	def searchFuzzyFactor = properties.get("pl.gda.eti.sab.searcher.search.fuzzy.factor").asInstanceOf[String]
+	def dampingFactor = properties.get("pl.gda.eti.sab.ranker.damping.factor").asInstanceOf[String].toDouble
+	def rankerThreadPoolSize = properties.get("pl.gda.eti.sab.ranker.threadpool.size").asInstanceOf[String].toInt
+	def serverPort = properties.get("pl.gda.eti.sab.server.port").asInstanceOf[String].toInt
 
 }

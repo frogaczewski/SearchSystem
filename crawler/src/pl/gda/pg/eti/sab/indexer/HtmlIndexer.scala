@@ -9,14 +9,13 @@ import org.apache.lucene.index.IndexWriter
 import org.apache.log4j.Logger
 import org.apache.lucene.util.{Version => LuceneVersion}
 import pl.gda.pg.eti.sab.crawler.PageEntity
+import pl.gda.pg.eti.sab.util.Logging
 
 /**
  * 
  * @author Filip Rogaczewski
  */
-class HtmlIndexer(val pages : Iterator[PageEntity], val directory : String) {
-
-	lazy val log = Logger.getLogger(this.getClass.getCanonicalName)
+class HtmlIndexer(val pages : Iterator[PageEntity], val directory : String) extends Logging {
 
 	private val dir = FSDirectory.open(new File(directory))
 	private val writer = new IndexWriter(dir, new StandardAnalyzer(LuceneVersion.LUCENE_30), true, IndexWriter.MaxFieldLength.UNLIMITED)

@@ -7,6 +7,6 @@ import java.util.List;
  */
 public interface SearchEngine {
 
-	List<Object> search(String term);
+	List<SearchResult> search(String term);
 
 }

@@ -22,6 +22,14 @@
         <priority value="FATAL" />
     </category>
 
+    <category name="org.mortbay">
+        <priority value="INFO" />
+    </category>
+
+    <category name="com.sun.jersey.server">
+        <priority value="INFO" />
+    </category>
+
 	<root>
 		<priority value="INFO"/>
 		<appender-ref ref="CONSOLE"/>

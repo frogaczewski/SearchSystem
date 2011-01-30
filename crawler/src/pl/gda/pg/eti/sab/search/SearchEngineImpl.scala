@@ -5,6 +5,7 @@ import org.apache.lucene.store.FSDirectory
 import java.io.File
 import org.apache.lucene.search.{ScoreDoc, IndexSearcher}
 import org.apache.lucene.util.{Version => LuceneVersion}
+import java.util.ArrayList
 
 /**
  * 
@@ -12,16 +13,17 @@ import org.apache.lucene.util.{Version => LuceneVersion}
  */
 class SearchEngineImpl extends SearchEngine {
 
-	def search(term : String) : java.util.List[Object] = {
-		val searcher = new IndexSearcher(FSDirectory.open(new File(CrawlerPropertiesReader.indexDirectory)))
+	val searcher = new IndexSearcher(FSDirectory.open(new File(CrawlerPropertiesReader.indexDirectory)))
+
+	def search(term : String) : java.util.List[SearchResult] = {
+		val results = new ArrayList[SearchResult]
 		val query = searchEngineUtil.query(term)
 		val docs = searcher.search(query, null, 10, searchEngineUtil.sort)
-		println("\n\nSzukanie " + term)
 		docs.scoreDocs.foreach((doc : ScoreDoc) => {
 			val document = searcher.doc(doc.doc)
-			println(document.get("title") + document.get("description") + document.get("url"))
+			results.add(searchResultFactory(document))
 		})
-		null
+		results
 	}
 
 }

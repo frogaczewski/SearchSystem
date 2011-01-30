@@ -11,18 +11,6 @@ import org.apache.log4j.Logger
  */
 object docFactory {
 
-	lazy val log = Logger.getLogger(this.getClass.getCanonicalName)
-
-	def makeModel(pages : Iterator[PageEntity]) : mutable.Set[Document] = {
-		log.info("Making documents model.")
-		val docs = new mutable.HashSet[Document]
-		pages.foreach(
-			docs += buildDocument(_)
-		)
-		log.info("Document model ready.")
-		docs
-	}
-
 	def buildDocument(page : PageEntity) : Document = {
 		val document = new Document
 		document.add(new Field("keywords", page.keywords.getOrElse(""), Field.Store.NO, Field.Index.ANALYZED))
@@ -30,7 +18,7 @@ object docFactory {
 		document.add(new Field("url", page.url, Field.Store.YES, Field.Index.NO))
 		document.add(new Field("title", page.title.getOrElse(""), Field.Store.YES, Field.Index.ANALYZED))
 		document.add(new Field("body", page.body.getOrElse(""), Field.Store.NO, Field.Index.ANALYZED))
-		document.setBoost(1.0f)
+		document.setBoost(page.pageRank.floatValue)
 		document
 	}
 }

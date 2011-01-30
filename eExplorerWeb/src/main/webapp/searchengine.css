@@ -1,0 +1,7 @@
+.rootPanel {
+	width: 1000px;
+	position: relative;
+	margin: auto;
+	margin-top: -300px;
+	top: 50%;
+}

@@ -6,14 +6,6 @@
            version="2.5">
 
     <servlet>
-        <servlet-name>searchServiceImpl</servlet-name>
-        <servlet-class>pl.gda.pg.eti.sab.searchengine.server.SearchServiceImpl</servlet-class>
-    </servlet>
-	<servlet-mapping>
-		<servlet-name>searchServiceImpl</servlet-name>
-		<url-pattern>searchengine/SearchService</url-pattern>
-	</servlet-mapping>
-    <servlet>
         <servlet-name>JettyProxy</servlet-name>
         <servlet-class>org.mortbay.servlet.ProxyServlet$Transparent</servlet-class>
         <init-param>

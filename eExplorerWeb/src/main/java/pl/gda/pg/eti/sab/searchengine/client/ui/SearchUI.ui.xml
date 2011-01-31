@@ -1,32 +1,49 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-			 xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+			 xmlns:g='urn:import:com.google.gwt.user.client.ui'
+			 xmlns:pf="urn:import:pl.gda.pg.eti.sab.searchengine.client.ui.widgets">
 
-	<g:VerticalPanel styleName="rootPanel">
-		<g:Image url="logo.jpg"/>
-		<g:HorizontalPanel spacing="4">
-			<g:cell verticalAlignment="ALIGN_MIDDLE" horizontalAlignment="ALIGN_LEFT">
-				<g:DecoratorPanel>
-					<g:HorizontalPanel spacing="4" height="45px">
-						<g:cell verticalAlignment="ALIGN_MIDDLE" horizontalAlignment="ALIGN_LEFT">
-							<g:Label>Szukaj:</g:Label>
-						</g:cell>
-						<g:cell verticalAlignment="ALIGN_MIDDLE" horizontalAlignment="ALIGN_CENTER">
-							<g:TextBox ui:field="searchQuery"/>
-						</g:cell>
-						<g:cell verticalAlignment="ALIGN_MIDDLE" horizontalAlignment="ALIGN_RIGHT">
-							<g:Button ui:field="searchButton">Szukaj!</g:Button>
-						</g:cell>
-					</g:HorizontalPanel>
-				</g:DecoratorPanel>
-			</g:cell>
-			<g:cell width="100%" verticalAlignment="ALIGN_MIDDLE" horizontalAlignment="ALIGN_RIGHT">
-				<g:MenuBar>
-					<g:MenuItem ui:field="authorsButton">Autorzy</g:MenuItem>
-					<g:MenuItemSeparator/>
-					<g:MenuItem ui:field="techButton">Wykorzystane technologie</g:MenuItem>
-				</g:MenuBar>
-			</g:cell>
-		</g:HorizontalPanel>
-		<g:FlexTable ui:field="resultTable" />
+	<ui:style>
+		.rootPanel {
+			width: 1000px;
+			position: relative;
+			margin: auto;
+			margin-top: -300px;
+			top: 50%;
+		}
+	</ui:style>
+
+	<g:VerticalPanel styleName="{style.rootPanel}">
+		<g:cell>
+			<g:Image url="logo.jpg"/>
+		</g:cell>
+		<g:cell>
+			<g:HorizontalPanel spacing="4">
+				<g:cell verticalAlignment="ALIGN_MIDDLE" horizontalAlignment="ALIGN_LEFT">
+					<g:DecoratorPanel>
+						<g:HorizontalPanel spacing="4" height="45px">
+							<g:cell verticalAlignment="ALIGN_MIDDLE" horizontalAlignment="ALIGN_LEFT">
+								<g:Label>Szukaj:</g:Label>
+							</g:cell>
+							<g:cell verticalAlignment="ALIGN_MIDDLE" horizontalAlignment="ALIGN_CENTER">
+								<g:TextBox ui:field="searchQuery"/>
+							</g:cell>
+							<g:cell verticalAlignment="ALIGN_MIDDLE" horizontalAlignment="ALIGN_RIGHT">
+								<g:Button ui:field="searchButton">Szukaj!</g:Button>
+							</g:cell>
+						</g:HorizontalPanel>
+					</g:DecoratorPanel>
+				</g:cell>
+				<g:cell width="100%" verticalAlignment="ALIGN_MIDDLE" horizontalAlignment="ALIGN_RIGHT">
+					<g:MenuBar>
+						<g:MenuItem ui:field="authorsButton">Autorzy</g:MenuItem>
+						<g:MenuItemSeparator/>
+						<g:MenuItem ui:field="techButton">Wykorzystane technologie</g:MenuItem>
+					</g:MenuBar>
+				</g:cell>
+			</g:HorizontalPanel>
+		</g:cell>
+		<g:cell horizontalAlignment="ALIGN_CENTER">
+			<pf:ResultTable ui:field="resultTable" pageSize="5"/>
+		</g:cell>
 	</g:VerticalPanel>
 </ui:UiBinder>

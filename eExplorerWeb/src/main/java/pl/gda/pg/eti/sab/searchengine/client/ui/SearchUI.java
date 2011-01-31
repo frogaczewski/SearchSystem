@@ -1,21 +1,23 @@
 package pl.gda.pg.eti.sab.searchengine.client.ui;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import pl.gda.pg.eti.sab.searchengine.client.SearchResult;
-
-import java.util.List;
+import pl.gda.pg.eti.sab.searchengine.client.ui.widgets.ResultTable;
 
 /**
  * @author Paweł Ogrodowczyk
@@ -30,7 +32,7 @@ public class SearchUI extends Composite {
 	@UiField protected Button searchButton;
 	@UiField protected MenuItem techButton;
 	@UiField protected MenuItem authorsButton;
-	@UiField protected FlexTable resultTable;
+	@UiField protected ResultTable resultTable;
 
 	private VerticalPanel rootPanel;
 
@@ -51,35 +53,42 @@ public class SearchUI extends Composite {
 		});
 	}
 
-	public void setResults(List<SearchResult> results) {
-		rootPanel.getElement().getStyle().setTop(0, Unit.PX);
-		resultTable.removeAllRows();
-		for (SearchResult r : results) {
-			resultTable.setHTML(resultTable.getRowCount(), 0,
-					"<a href=\"" + r.getUrl() + "\">" + r.getTitle() + "</a>"
-					+ "<p>" + r.getExcerpt() + "</p>"
-					+ "PageRank: " + r.getPageRank() + "</br>"
-					+ r.getUrl() + "</br></br>");
+	public void displayResults(JsArray<JavaScriptObject> results) {
+		resultTable.clear();
+
+		if (results.length() == 0) {
+			Window.alert("Nie znaleziono wyników dla zapytania: " + searchQuery.getText());
+		}
+		else {
+			rootPanel.getElement().getStyle().setTop(0, Unit.PX);
+			for (int i = 0; i < results.length(); i++) {
+				JSONObject result = new JSONObject(results.get(i));
+				resultTable.addRow(result);
+			}
 		}
 	}
 
-	private int jsonRequestId = 0;
-
 	@UiHandler("searchButton")
 	void searchButtonClick(ClickEvent event) {
+		getResults();
+	}
+
+	@UiHandler("searchQuery")
+	void searchQueryEnterPressed(KeyPressEvent event) {
+		if (event.getCharCode() == KeyCodes.KEY_ENTER) {
+			getResults();
+        }
+	}
+
+	private void getResults() {
 		String requestUrl = "http://127.0.0.1:8888/searchengine/proxied/search?query=" + searchQuery.getText();
 		RequestBuilder builder = new RequestBuilder(
 				RequestBuilder.GET, URL.encode(requestUrl));
 		builder.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 		builder.setCallback(new RequestCallback() {
 				public void onResponseReceived(Request request, Response response) {
-					JSONArray results = (JSONArray) JSONParser.parseStrict(response.getText());
-					Window.alert("results size is " + results.size());
-					for (int i = 0; i < results.size(); i++) {
-						JSONValue result = results.get(i);
-						Window.alert("result " + result.toString());
-					}
-					Window.alert("result is " + response.getText());
+					JsArray<JavaScriptObject> results = (JsArray<JavaScriptObject>)((JSONArray) JSONParser.parseStrict(response.getText())).getJavaScriptObject();
+					displayResults(results);
 				}
 
 				public void onError(Request request, Throwable throwable) {

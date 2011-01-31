@@ -13,8 +13,4 @@
     <!-- Specify the app entry point class.                   -->
 	<entry-point class='pl.gda.pg.eti.sab.searchengine.client.SearchEngine'/>
 
-
-	<!-- Specify the app servlets.                   -->
-	<!--<servlet path='/SearchService' class='pl.gda.pg.eti.sab.server.SearchServiceImpl'/>-->
-
 </module>

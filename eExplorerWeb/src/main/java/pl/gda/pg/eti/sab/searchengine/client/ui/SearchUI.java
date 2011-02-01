@@ -17,7 +17,10 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import pl.gda.pg.eti.sab.searchengine.client.ui.widgets.AuthorsInfo;
+import pl.gda.pg.eti.sab.searchengine.client.ui.widgets.InfoBox;
 import pl.gda.pg.eti.sab.searchengine.client.ui.widgets.ResultTable;
+import pl.gda.pg.eti.sab.searchengine.client.ui.widgets.TechnologyInfo;
 
 /**
  * @author Paweł Ogrodowczyk
@@ -35,20 +38,25 @@ public class SearchUI extends Composite {
 	@UiField protected ResultTable resultTable;
 
 	private VerticalPanel rootPanel;
+	private InfoBox authorsInfoBox;
+	private InfoBox technologyInfoBox;
 
 	public SearchUI() {
 		rootPanel = uiBinder.createAndBindUi(this);
 		initWidget(rootPanel);
 
+		authorsInfoBox = new InfoBox("Autorzy", new AuthorsInfo());
+		technologyInfoBox = new InfoBox("Wykorzystane technologie", new TechnologyInfo());
+
 		authorsButton.setCommand(new Command() {
 			public void execute() {
-				Window.alert("//TODO: DialogBox z autorami...");
+				authorsInfoBox.display();
 			}
 		});
 
 		techButton.setCommand(new Command() {
 			public void execute() {
-				Window.alert("//TODO: DialogBox z wykorzystanymi technologiami...");
+				technologyInfoBox.display();
 			}
 		});
 	}
@@ -58,6 +66,7 @@ public class SearchUI extends Composite {
 
 		if (results.length() == 0) {
 			Window.alert("Nie znaleziono wyników dla zapytania: " + searchQuery.getText());
+			rootPanel.getElement().getStyle().setTop(50, Unit.PCT);
 		}
 		else {
 			rootPanel.getElement().getStyle().setTop(0, Unit.PX);
@@ -69,13 +78,22 @@ public class SearchUI extends Composite {
 	}
 
 	@UiHandler("searchButton")
-	void searchButtonClick(ClickEvent event) {
+	public void searchButtonClick(ClickEvent event) {
 		getResults();
 	}
 
 	@UiHandler("searchQuery")
-	void searchQueryEnterPressed(KeyPressEvent event) {
-		if (event.getCharCode() == KeyCodes.KEY_ENTER) {
+	public void searchQueryEnterPressed(KeyPressEvent event) {
+		int charCode = event.getUnicodeCharCode();
+
+		//firefox workaround
+		if (charCode == 0) {
+			int keyCode = event.getNativeEvent().getKeyCode();
+
+			if (keyCode == KeyCodes.KEY_ENTER) {
+				getResults();
+			}
+		} else if (charCode == 13) {
 			getResults();
         }
 	}

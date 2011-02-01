@@ -7,14 +7,17 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiConstructor;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.SimplePager;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.NoSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.RangeChangeEvent;
 import pl.gda.pg.eti.sab.searchengine.client.util.ResultHtmlRenderer;
 
 import java.util.List;
@@ -42,6 +45,7 @@ public class ResultTable extends Composite{
 				return jsonObject.get("url");
 			}
 		});
+
 		resultTable.setSelectionModel(new NoSelectionModel<JSONObject>());
 		initTableColumns();
 
@@ -69,7 +73,9 @@ public class ResultTable extends Composite{
 						return htmlRenderer.render(item);
 					}
 				};
+
 			}
+
 		};
 
 		resultTable.addColumn(column);
@@ -87,5 +93,10 @@ public class ResultTable extends Composite{
 		List<JSONObject> rows = dataProvider.getList();
 		rows.clear();
 		resultPager.setVisible(false);
+	}
+
+	@UiHandler("resultTable")
+	public void resultTableRangeChange(RangeChangeEvent event) {
+		Window.scrollTo(0, 0);
 	}
 }

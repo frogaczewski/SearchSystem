@@ -1,0 +1,45 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+			 xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:style>
+		.panel {
+			padding: 1em;
+		}
+	</ui:style>
+
+	<g:HTMLPanel styleName="{style.panel}">
+		<table>
+			<tr>
+				<td>
+					<ul>
+						<li>
+							<b>Back-end:</b>
+							<ul>
+								<li>Scala</li>
+								<li>Apache Lucene</li>
+							</ul>
+						</li>
+						<li>
+							<b>Front-end:</b>
+							<ul>
+								<li>Java</li>
+								<li>Google Web Toolkit</li>
+							</ul>
+						</li>
+						<li>
+							<b>Development</b>
+							<ul>
+								<li>Git/Github</li>
+								<li>IntelliJ Idea</li>
+								<li>Apache Maven</li>
+							</ul>
+						</li>
+					</ul>
+				</td>
+				<td>
+					<img src="images/gear.png" alt="gear.png" style="width: 128px; heigh: 128px;" />
+				</td>
+			</tr>
+		</table>
+	</g:HTMLPanel>
+</ui:UiBinder>

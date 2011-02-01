@@ -4,9 +4,11 @@
 
 	<ui:style>
 		.rootPanel {
+			display: block;
 			width: 1000px;
 			position: relative;
-			margin: auto;
+			margin-left: auto;
+			margin-right: auto;
 			margin-top: -300px;
 			top: 50%;
 		}
@@ -14,7 +16,7 @@
 
 	<g:VerticalPanel styleName="{style.rootPanel}">
 		<g:cell>
-			<g:Image url="logo.jpg"/>
+			<g:Image url="images/logo.jpg"/>
 		</g:cell>
 		<g:cell>
 			<g:HorizontalPanel spacing="4">

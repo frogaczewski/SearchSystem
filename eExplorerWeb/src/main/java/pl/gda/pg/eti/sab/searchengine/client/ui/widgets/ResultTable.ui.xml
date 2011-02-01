@@ -3,10 +3,6 @@
 			 xmlns:cellview="urn:import:com.google.gwt.user.cellview.client">
 
 	<ui:style>
-		.resultPanel {
-			margin: auto;
-		}
-
 		.resultTable {
 			width: 960px;
 			text-align: left;
@@ -15,10 +11,10 @@
 
 	<g:VerticalPanel>
 		<g:cell horizontalAlignment="ALIGN_CENTER">
-			<cellview:CellTable ui:field="resultTable" styleName="{style.resultTable}"/>
+			<cellview:CellTable ui:field="resultTable" styleName="{style.resultTable}" />
 		</g:cell>
 		<g:cell horizontalAlignment="ALIGN_CENTER">
-			<cellview:SimplePager ui:field="resultPager"/>
+			<cellview:SimplePager ui:field="resultPager" />
 		</g:cell>
 	</g:VerticalPanel>
 </ui:UiBinder>

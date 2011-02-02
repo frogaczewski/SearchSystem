@@ -12,11 +12,11 @@ import util.control.Breaks
 object htmlContentUtil {
 
 	def metaKeywords(source : Source) : Option[String] = {
-		getMetaValue(source, "keywords")
+		translate(source, getMetaValue(source, "keywords"))
 	}
 
 	def metaDescription(source : Source) : Option[String] = {
-		getMetaValue(source, "description")
+		translate(source, getMetaValue(source, "description"))
 	}
 
 	private def getMetaValue(source : Source, key : String) : Option[String] = {
@@ -51,7 +51,8 @@ object htmlContentUtil {
 	}
 
 	def pageTitle(source : Source) : Option[String] = {
-		Some(source.getFirstElement(HTMLElementName.TITLE).getContent.toString)
+		val title = Some(source.getFirstElement(HTMLElementName.TITLE).getContent.toString)
+		translate(source, title)
 	}
 
 	def links(source : Source) : mutable.Set[String] = {
@@ -91,6 +92,22 @@ object htmlContentUtil {
 				}
 			}
 			case None => false
+		}
+	}
+
+	/**
+	 * TODO rename
+	 */
+	private def translate(source : Source, text : Option[String]) = {
+		val toTranslate = text.getOrElse("")
+		if (source.getEncoding.equalsIgnoreCase("ISO-8859-1")) {
+			val isoBytes = toTranslate.getBytes("ISO-8859-1")
+			Some(new String(isoBytes, "UTF-8"))
+		} else if (source.getEncoding.equalsIgnoreCase("ISO-8859-2")) {
+			val isoBytes = toTranslate.getBytes("ISO-8859-2")
+			Some(new String(isoBytes, "UTF-8"))			
+		} else {
+			Some(toTranslate)
 		}
 	}
 

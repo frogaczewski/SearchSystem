@@ -9,6 +9,7 @@ import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.params.HttpClientParams
 import java.io.{BufferedReader, InputStreamReader}
+import java.net.UnknownHostException
 
 /**
  * Crawler object.
@@ -48,6 +49,11 @@ object Crawler extends Actor with Logging {
 	val crawlerTimeout = CrawlerPropertiesReader.crawlerTimeout
 
 	/**
+	 * List of hosts analyzed for robots protocol. 
+	 */
+	val robotsAnalyzed = new mutable.HashSet[String]
+
+	/**
 	 * Robots protocol not indexed.
 	 */
 	val robotsDisallow = "Disallow: "
@@ -57,7 +63,7 @@ object Crawler extends Actor with Logging {
 	 * page defined in crawler properties.
 	 */
 	override def start() : Actor = {
-		crawled ++= exclusions
+		robotsAnalyzed(CrawlerPropertiesReader.crawlerStartPage)
 		crawlTasks += new CrawlerTask(CrawlerPropertiesReader.crawlerStartPage, 1)
 		threadPool.execute(tasksExecutor)
 		super.start
@@ -81,8 +87,10 @@ object Crawler extends Actor with Logging {
 			if (crawlTasks.isEmpty) {
 				val start = System.currentTimeMillis
 				lock.wait(crawlerTimeout)
-				if (System.currentTimeMillis - start >= crawlerTimeout)
+				if (System.currentTimeMillis - start >= crawlerTimeout) {
+					log.info("Crawler timeout")
 					timeout = true
+				}
 			} else {
 				val task = crawlTasks.dequeue
 				threadPool.execute(task)
@@ -122,10 +130,13 @@ object Crawler extends Actor with Logging {
 	 */
 	private def createNewCrawlerTasks(page : PageEntity) = {
 		page.links.foreach((link : String) => {
-			 if (!crawled.contains(link) && page.depth < depthLimit) {
-				 crawlTasks += new CrawlerTask(link, page.depth + 1)
-			 }
+//			analyzeRobots(link)
+			if (!crawled.contains(link) && page.depth < depthLimit) {
+				crawlTasks += new CrawlerTask(link, page.depth + 1)
+			}
+			log.info("creating new task")
 		})
+		log.info("creating unlocking executor")
 		unlockExecutor
 	}
 
@@ -133,18 +144,40 @@ object Crawler extends Actor with Logging {
 		lock.notify
 	}
 
-	private def exclusions() : mutable.Set[String] = {
+	/**
+	 * Analyzes robots.txt file.
+	 * 1) Finds hostname for the given url
+	 * 2) If robots.txt for the hostname hasn't already been analyzes, analyzes it
+	 * Pages which are 'disallowed' in robots.txt are added to crawled set, so
+	 * CrawlerTasks won't be created for those pages
+	 */
+	private def analyzeRobots(link : String) = {
+		val hostname = "http://" + link.split("/")(2)
+		log.info("analyze " + hostname)
+		if (!robotsAnalyzed.contains(hostname)) {
+			try {
+				robotsAnalyzed += hostname
+				crawled ++= exclusions(hostname)
+			} catch {
+				case uhe : UnknownHostException => log.error(uhe.getMessage)
+			}
+		}
+	}
+
+	@throws(classOf[UnknownHostException])
+	private def exclusions(hostname : String) : mutable.Set[String] = {
+		log.info("Analyzing robots.txt for " + hostname)
 		val params = new HttpClientParams
 		params.setConnectionManagerTimeout(CrawlerPropertiesReader.connectionTimeout)
 		val client = new HttpClient(params)
-		val get = new GetMethod(CrawlerPropertiesReader.crawlerRobotsProtocol)
+		val get = new GetMethod(hostname + CrawlerPropertiesReader.crawlerRobotsProtocol)
 		client.executeMethod(get)
 		val stream = new BufferedReader(new InputStreamReader(get.getResponseBodyAsStream))
 		var line = stream.readLine
 		val result = new mutable.HashSet[String]
 		while (line != null) {
 			if (line.startsWith(robotsDisallow))
-				result += CrawlerPropertiesReader.crawlerStartPage + line.substring(robotsDisallow.length)
+				result += hostname + line.substring(robotsDisallow.length)
 			line = stream.readLine
 		}
 		result

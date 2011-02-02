@@ -3,7 +3,6 @@ package pl.gda.pg.eti.sab.pagerank
 import collection.immutable
 import collection.mutable
 import pl.gda.pg.eti.sab.crawler.PageEntity
-import org.apache.log4j.Logger
 import pl.gda.pg.eti.sab.util.Logging
 
 /**

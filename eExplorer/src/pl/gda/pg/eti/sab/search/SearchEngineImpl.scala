@@ -25,13 +25,15 @@ class SearchEngineImpl extends Logging {
 		val query = searchEngineUtil.query(term)
 		val queryStartTime = System.currentTimeMillis
 		val docs : TopDocs = searcher.search(query, null, to, searchEngineUtil.sort)
-		for (i <- from until to) {
+		val totalHits = docs.totalHits
+		val max = if (to < totalHits) to else totalHits
+		for (i <- from until max) {
 			val document = searcher.doc(docs.scoreDocs(i).doc)
 			results.add(searchResultFactory(document))
 		}
 		val queryTime = System.currentTimeMillis - queryStartTime
 		log.info("Query for " + term + " took " +  queryTime)		
-		(results, docs.totalHits)
+		(results, totalHits)
 	}
 
 }

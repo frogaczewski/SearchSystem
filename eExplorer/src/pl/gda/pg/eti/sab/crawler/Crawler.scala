@@ -3,9 +3,12 @@ package pl.gda.pg.eti.sab.crawler
 import java.util.concurrent.Executors
 import collection.mutable
 import actors.Actor
-import org.apache.log4j.Logger
 import pl.gda.pg.eti.sab.Explorer
 import pl.gda.pg.eti.sab.util.{Logging, CloseMessage, CrawlerFinishedMessage, CrawlerPropertiesReader}
+import org.apache.commons.httpclient.methods.GetMethod
+import org.apache.commons.httpclient.HttpClient
+import org.apache.commons.httpclient.params.HttpClientParams
+import java.io.{BufferedReader, InputStreamReader}
 
 /**
  * Crawler object.
@@ -45,10 +48,16 @@ object Crawler extends Actor with Logging {
 	val crawlerTimeout = CrawlerPropertiesReader.crawlerTimeout
 
 	/**
+	 * Robots protocol not indexed.
+	 */
+	val robotsDisallow = "Disallow: "
+
+	/**
 	 * Overriden start method. Starts crawler actor and initializes first crawler task for
 	 * page defined in crawler properties.
 	 */
 	override def start() : Actor = {
+		crawled ++= exclusions
 		crawlTasks += new CrawlerTask(CrawlerPropertiesReader.crawlerStartPage, 1)
 		threadPool.execute(tasksExecutor)
 		super.start
@@ -122,6 +131,23 @@ object Crawler extends Actor with Logging {
 
 	private def unlockExecutor() : Unit = lock.synchronized {
 		lock.notify
+	}
+
+	private def exclusions() : mutable.Set[String] = {
+		val params = new HttpClientParams
+		params.setConnectionManagerTimeout(CrawlerPropertiesReader.connectionTimeout)
+		val client = new HttpClient(params)
+		val get = new GetMethod(CrawlerPropertiesReader.crawlerRobotsProtocol)
+		client.executeMethod(get)
+		val stream = new BufferedReader(new InputStreamReader(get.getResponseBodyAsStream))
+		var line = stream.readLine
+		val result = new mutable.HashSet[String]
+		while (line != null) {
+			if (line.startsWith(robotsDisallow))
+				result += CrawlerPropertiesReader.crawlerStartPage + line.substring(robotsDisallow.length)
+			line = stream.readLine
+		}
+		result
 	}
 
 }

@@ -27,5 +27,7 @@ object CrawlerPropertiesReader {
 	def dampingFactor = properties.get("pl.gda.eti.sab.ranker.damping.factor").asInstanceOf[String].toDouble
 	def rankerThreadPoolSize = properties.get("pl.gda.eti.sab.ranker.threadpool.size").asInstanceOf[String].toInt
 	def serverPort = properties.get("pl.gda.eti.sab.server.port").asInstanceOf[String].toInt
+	def crawlerRobotsProtocol = crawlerStartPage + "/robots.txt"
+	def rankerIterations = properties.get("pl.gda.eti.sab.ranker.iterations").asInstanceOf[String].toInt
 
 }

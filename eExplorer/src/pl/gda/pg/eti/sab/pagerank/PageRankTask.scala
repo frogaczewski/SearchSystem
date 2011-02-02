@@ -17,12 +17,12 @@ class PageRankTask(val pages : immutable.Map[String, PageEntity], val page : Pag
 
 	def run() : Unit = {
 		log.info("Ranking page " + page.url)
-		var ranking = (1 - PageRanker.dampingFactor) / pages.size
+		var ranking = (1 - PageRanker.dampingFactor)
 		references.foreach((p : PageEntity) => {
 			ranking += PageRanker.dampingFactor * (p.pageRank / p.links.size)
 		})
-		page.pageRank = ranking
-		log.info("Ranking for page " + page.url + " is " + page.pageRank)
+		page.tempPageRank = ranking
+		log.info("Ranking for page " + page.url + " is " + page.tempPageRank)
 	}
 
 	/**

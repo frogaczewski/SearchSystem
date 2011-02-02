@@ -56,22 +56,42 @@ object htmlContentUtil {
 
 	def links(source : Source) : mutable.Set[String] = {
 		var links = new mutable.HashSet[String]
-		source.getAllElements(HTMLElementName.A).foreach((e : Element) => {
-			val link = e.getAttributeValue("href")
-			link match {
-				case Optional(Some(value)) => {
-					if (value.startsWith("http"))
-						links += value
+		if (!nofollow(source)) {
+			source.getAllElements(HTMLElementName.A).foreach((e : Element) => {
+				val link = e.getAttributeValue("href")
+				link match {
+					case Optional(Some(value)) => {
+						if (value.startsWith("http"))
+					 		links += value
+					}
+					case Optional(None) => {}
 				}
-				case Optional(None) => {}
-			}
-		})
+			})
+		}
 		links
 	}
 
 	def body(source : Source) : Option[String] = {
 		val body = source.getFirstElement(HTMLElementName.BODY)
 		Some(body.getTextExtractor.toString)
+	}
+
+	def index(source : Source) = !robots(source, "NOINDEX")
+
+	def nofollow(source : Source) = robots(source, "NOFOLLOW")
+
+	private def robots(source : Source, key : String) : Boolean = {
+		val robots = getMetaValue(source, "robots")
+		robots match {
+			case Some(value) => {
+				if (value.contains(key))
+					true
+				else {
+					false
+				}
+			}
+			case None => false
+		}
 	}
 
 }

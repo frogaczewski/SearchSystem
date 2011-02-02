@@ -50,7 +50,10 @@ class PageEntity(val url : String, val depth : Int) {
 	val description = htmlContentUtil.metaDescription(source)
 	val links : mutable.Set[String] = htmlContentUtil.links(source)
 	val body = htmlContentUtil.body(source)
+	def index = htmlContentUtil.index(source)
+	def nofollow = htmlContentUtil.nofollow(source)
 	var pageRank = 1.0d
+	var tempPageRank : Double = _
 
 	/**
 	 * Returns true if this page references given page url,
@@ -59,4 +62,9 @@ class PageEntity(val url : String, val depth : Int) {
 	def references(pageUrl : String) : Boolean = {
 		links.contains(pageUrl)
 	}
+
+	def adjustPageRank() : Unit = {
+		pageRank = tempPageRank
+	}
+
 }

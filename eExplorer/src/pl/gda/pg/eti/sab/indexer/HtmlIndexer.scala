@@ -22,9 +22,13 @@ class HtmlIndexer(val pages : Iterator[PageEntity], val directory : String) exte
 
 	def index() : Unit = {
 		log.info("Indexing all documents")
-		pages.foreach((page : PageEntity) =>
-			writer.addDocument(docFactory.buildDocument(page))
-		)
+		pages.foreach((page : PageEntity) => {
+			if (page.index) {
+				writer.addDocument(docFactory.buildDocument(page))
+			} else {
+				log.info("Page " + page.url + " is not indexed")
+			}
+		})
 		writer.optimize
 		writer.close
 		log.info("All document indexed")

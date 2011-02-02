@@ -36,6 +36,9 @@ public class SearchUI extends Composite {
 	@UiField protected MenuItem techButton;
 	@UiField protected MenuItem authorsButton;
 	@UiField protected ResultTable resultTable;
+	@UiField protected HorizontalPanel resultInfo;
+	@UiField protected Label resultCount;
+	@UiField protected Label resultTime;
 
 	private VerticalPanel rootPanel;
 	private InfoBox authorsInfoBox;
@@ -47,6 +50,8 @@ public class SearchUI extends Composite {
 
 		authorsInfoBox = new InfoBox("Autorzy", new AuthorsInfo());
 		technologyInfoBox = new InfoBox("Wykorzystane technologie", new TechnologyInfo());
+
+		resultInfo.setVisible(false);
 
 		authorsButton.setCommand(new Command() {
 			public void execute() {
@@ -61,15 +66,19 @@ public class SearchUI extends Composite {
 		});
 	}
 
-	public void displayResults(JsArray<JavaScriptObject> results) {
+	public void displayResults(JsArray<JavaScriptObject> results, double time) {
 		resultTable.clear();
 
 		if (results.length() == 0) {
 			Window.alert("Nie znaleziono wyników dla zapytania: " + searchQuery.getText());
 			rootPanel.getElement().getStyle().setTop(50, Unit.PCT);
+			resultInfo.setVisible(false);
 		}
 		else {
 			rootPanel.getElement().getStyle().setTop(0, Unit.PX);
+			resultInfo.setVisible(true);
+			resultCount.setText(String.valueOf(results.length()));
+			resultTime.setText(String.valueOf(time));
 			for (int i = 0; i < results.length(); i++) {
 				JSONObject result = new JSONObject(results.get(i));
 				resultTable.addRow(result);
@@ -99,6 +108,7 @@ public class SearchUI extends Composite {
 	}
 
 	private void getResults() {
+		final long sendTime = System.currentTimeMillis();
 		String requestUrl = "http://127.0.0.1:8888/searchengine/proxied/search?query=" + searchQuery.getText();
 		RequestBuilder builder = new RequestBuilder(
 				RequestBuilder.GET, URL.encode(requestUrl));
@@ -106,7 +116,8 @@ public class SearchUI extends Composite {
 		builder.setCallback(new RequestCallback() {
 				public void onResponseReceived(Request request, Response response) {
 					JsArray<JavaScriptObject> results = (JsArray<JavaScriptObject>)((JSONArray) JSONParser.parseStrict(response.getText())).getJavaScriptObject();
-					displayResults(results);
+					displayResults(results,
+						((double)System.currentTimeMillis()-(double)sendTime)/1000);
 				}
 
 				public void onError(Request request, Throwable throwable) {

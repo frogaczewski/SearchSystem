@@ -12,6 +12,16 @@
 			margin-top: -300px;
 			top: 50%;
 		}
+
+		.info {
+			font-size: smaller;
+			margin-right: 2em;
+			color: #999999;
+		}
+
+		.bold {
+			font-weight: bold;
+		}
 	</ui:style>
 
 	<g:VerticalPanel styleName="{style.rootPanel}">
@@ -42,6 +52,15 @@
 						<g:MenuItem ui:field="techButton">Wykorzystane technologie</g:MenuItem>
 					</g:MenuBar>
 				</g:cell>
+			</g:HorizontalPanel>
+		</g:cell>
+		<g:cell horizontalAlignment="ALIGN_RIGHT">
+			<g:HorizontalPanel ui:field="resultInfo" styleName="{style.info}" spacing="4">
+				<g:Label>Znaleziono</g:Label>
+				<g:Label ui:field="resultCount" styleName="{style.bold}" />
+				<g:Label>wyników w</g:Label>
+				<g:Label ui:field="resultTime" styleName="{style.bold}" />
+				<g:Label>sekund.</g:Label>
 			</g:HorizontalPanel>
 		</g:cell>
 		<g:cell horizontalAlignment="ALIGN_CENTER">

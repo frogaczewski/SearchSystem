@@ -1,12 +1,9 @@
 package pl.gda.pg.eti.sab.indexer
 
-import org.apache.lucene.document.Document
-import collection.mutable
 import org.apache.lucene.store.FSDirectory
 import java.io.File
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.index.IndexWriter
-import org.apache.log4j.Logger
 import org.apache.lucene.util.{Version => LuceneVersion}
 import pl.gda.pg.eti.sab.crawler.PageEntity
 import pl.gda.pg.eti.sab.util.Logging
@@ -22,6 +19,7 @@ class HtmlIndexer(val pages : Iterator[PageEntity], val directory : String) exte
 
 	def index() : Unit = {
 		log.info("Indexing all documents")
+		val indexStartTime = System.currentTimeMillis
 		pages.foreach((page : PageEntity) => {
 			if (page.index) {
 				writer.addDocument(docFactory.buildDocument(page))
@@ -31,6 +29,6 @@ class HtmlIndexer(val pages : Iterator[PageEntity], val directory : String) exte
 		})
 		writer.optimize
 		writer.close
-		log.info("All document indexed")
+		log.info("All document indexed - time taken " + (System.currentTimeMillis - indexStartTime))
 	}
 }

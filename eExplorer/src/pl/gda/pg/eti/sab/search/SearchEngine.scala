@@ -5,5 +5,5 @@ package pl.gda.pg.eti.sab.search
 */
 trait SearchEngine {
 
-	def search(query : String) : java.util.List[SearchResult]
+	def search(query : String, from : Int, to : Int) : java.util.List[SearchResult]
 }

@@ -2,6 +2,8 @@ package pl.gda.pg.eti.sab.searchengine.client.ui.widgets;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -18,7 +20,10 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.NoSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.RangeChangeEvent;
-import pl.gda.pg.eti.sab.searchengine.client.util.ResultHtmlRenderer;
+import pl.gda.pg.eti.sab.searchengine.client.util.Settings;
+import pl.gda.pg.eti.sab.searchengine.client.util.data.ILazyFetcher;
+import pl.gda.pg.eti.sab.searchengine.client.util.data.ResultFetcher;
+import pl.gda.pg.eti.sab.searchengine.client.util.html.ResultHtmlRenderer;
 
 import java.util.List;
 
@@ -31,15 +36,13 @@ public class ResultTable extends Composite{
 
 	private static ResultTableUiBinder ourUiBinder = GWT.create(ResultTableUiBinder.class);
 
-	private ListDataProvider<JSONObject> dataProvider;
-
 	@UiField(provided = true) protected CellTable<JSONObject> resultTable;
 	@UiField(provided = true) protected SimplePager resultPager;
 
+	private ILazyFetcher<ListDataProvider<JSONObject>> resultFetcher;
+
 	@UiConstructor
 	public ResultTable(int pageSize) {
-		dataProvider = new ListDataProvider<JSONObject>();
-
 		resultTable = new CellTable<JSONObject>(pageSize, new ProvidesKey<JSONObject>() {
 			public Object getKey(JSONObject jsonObject) {
 				return jsonObject.get("url");
@@ -79,24 +82,19 @@ public class ResultTable extends Composite{
 		};
 
 		resultTable.addColumn(column);
-
-		dataProvider.addDataDisplay(resultTable);
-	}
-
-	public void addRow(JSONObject row) {
-		List<JSONObject> rows = dataProvider.getList();
-		rows.add(row);
-		resultPager.setVisible(true);
-	}
-
-	public void clear() {
-		List<JSONObject> rows = dataProvider.getList();
-		rows.clear();
-		resultPager.setVisible(false);
 	}
 
 	@UiHandler("resultTable")
 	public void resultTableRangeChange(RangeChangeEvent event) {
+		if (!resultPager.hasNextPage()) {
+			resultFetcher.fetch(Settings.PAGE_FETCH_COUNT);
+		}
+
 		Window.scrollTo(0, 0);
+	}
+
+	public void setResultFetcher(ILazyFetcher<ListDataProvider<JSONObject>> resultFetcher) {
+		this.resultFetcher = resultFetcher;
+		resultFetcher.getDataProvider().addDataDisplay(resultTable);
 	}
 }

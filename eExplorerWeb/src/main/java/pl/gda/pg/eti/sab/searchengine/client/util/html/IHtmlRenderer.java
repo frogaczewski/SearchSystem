@@ -1,4 +1,4 @@
-package pl.gda.pg.eti.sab.searchengine.client.util;
+package pl.gda.pg.eti.sab.searchengine.client.util.html;
 
 /**
  * @author Paweł Ogrodowczyk

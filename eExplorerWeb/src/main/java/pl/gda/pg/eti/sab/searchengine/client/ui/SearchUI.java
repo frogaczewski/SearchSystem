@@ -17,10 +17,15 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.view.client.ListDataProvider;
 import pl.gda.pg.eti.sab.searchengine.client.ui.widgets.AuthorsInfo;
 import pl.gda.pg.eti.sab.searchengine.client.ui.widgets.InfoBox;
 import pl.gda.pg.eti.sab.searchengine.client.ui.widgets.ResultTable;
 import pl.gda.pg.eti.sab.searchengine.client.ui.widgets.TechnologyInfo;
+import pl.gda.pg.eti.sab.searchengine.client.util.Settings;
+import pl.gda.pg.eti.sab.searchengine.client.util.data.IFetchCallback;
+import pl.gda.pg.eti.sab.searchengine.client.util.data.ILazyFetcher;
+import pl.gda.pg.eti.sab.searchengine.client.util.data.ResultFetcher;
 
 /**
  * @author Paweł Ogrodowczyk
@@ -44,9 +49,34 @@ public class SearchUI extends Composite {
 	private InfoBox authorsInfoBox;
 	private InfoBox technologyInfoBox;
 
+	private ILazyFetcher<ListDataProvider<JSONObject>> resultFetcher;
+
 	public SearchUI() {
 		rootPanel = uiBinder.createAndBindUi(this);
 		initWidget(rootPanel);
+
+		resultFetcher = new ResultFetcher();
+		resultFetcher.setFetchCallback(new IFetchCallback() {
+			public void onFetchComplete(int totalResults, long timeTaken) {
+
+				if (totalResults == 0) {
+					Window.alert("Nie znaleziono wyników dla zapytania: " + searchQuery.getText());
+					rootPanel.getElement().getStyle().setTop(50, Unit.PCT);
+					resultInfo.setVisible(false);
+				} else {
+					rootPanel.getElement().getStyle().setTop(0, Unit.PX);
+					resultInfo.setVisible(true);
+					resultCount.setText(String.valueOf(totalResults));
+					resultTime.setText(String.valueOf((double)timeTaken/1000));
+				}
+			}
+
+			public void onFetchFailure() {
+				Window.alert("Failed to get results.");
+			}
+		});
+
+		resultTable.setResultFetcher(resultFetcher);
 
 		authorsInfoBox = new InfoBox("Autorzy", new AuthorsInfo());
 		technologyInfoBox = new InfoBox("Wykorzystane technologie", new TechnologyInfo());
@@ -64,26 +94,6 @@ public class SearchUI extends Composite {
 				technologyInfoBox.display();
 			}
 		});
-	}
-
-	public void displayResults(JsArray<JavaScriptObject> results, double time) {
-		resultTable.clear();
-
-		if (results.length() == 0) {
-			Window.alert("Nie znaleziono wyników dla zapytania: " + searchQuery.getText());
-			rootPanel.getElement().getStyle().setTop(50, Unit.PCT);
-			resultInfo.setVisible(false);
-		}
-		else {
-			rootPanel.getElement().getStyle().setTop(0, Unit.PX);
-			resultInfo.setVisible(true);
-			resultCount.setText(String.valueOf(results.length()));
-			resultTime.setText(String.valueOf(time));
-			for (int i = 0; i < results.length(); i++) {
-				JSONObject result = new JSONObject(results.get(i));
-				resultTable.addRow(result);
-			}
-		}
 	}
 
 	@UiHandler("searchButton")
@@ -108,26 +118,8 @@ public class SearchUI extends Composite {
 	}
 
 	private void getResults() {
-		final long sendTime = System.currentTimeMillis();
-		String requestUrl = "http://127.0.0.1:8888/searchengine/proxied/search?query=" + searchQuery.getText();
-		RequestBuilder builder = new RequestBuilder(
-				RequestBuilder.GET, URL.encode(requestUrl));
-		builder.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-		builder.setCallback(new RequestCallback() {
-				public void onResponseReceived(Request request, Response response) {
-					JsArray<JavaScriptObject> results = (JsArray<JavaScriptObject>)((JSONArray) JSONParser.parseStrict(response.getText())).getJavaScriptObject();
-					displayResults(results,
-						((double)System.currentTimeMillis()-(double)sendTime)/1000);
-				}
-
-				public void onError(Request request, Throwable throwable) {
-					Window.alert("There was an error " + throwable.getMessage());
-				}
-			});
-		try {
-			builder.send();
-		} catch (RequestException e) {
-			Window.alert(e.getMessage());
-		}
+		resultFetcher.flush();
+		resultFetcher.setQuery(searchQuery.getText());
+		resultFetcher.fetch(Settings.PAGE_FETCH_COUNT);
 	}
 }

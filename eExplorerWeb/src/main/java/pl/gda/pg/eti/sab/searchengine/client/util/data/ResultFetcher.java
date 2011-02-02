@@ -1,7 +1,6 @@
 package pl.gda.pg.eti.sab.searchengine.client.util.data;
 
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -27,25 +26,30 @@ public class ResultFetcher implements ILazyFetcher<ListDataProvider<JSONObject>>
 	}
 
 	public void fetch(int count) {
-		final long timeTaken = System.currentTimeMillis();
 		String requestUrl = "http://127.0.0.1:8888/searchengine/proxied/search?query=" + query + "&from=" + from + "&to=" + (from + count);
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(requestUrl));
 		builder.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 		builder.setCallback(new RequestCallback() {
 				public void onResponseReceived(Request request, Response response) {
-					Window.alert(response.getText());
-					JSONArray receivedData = JSONParser.parseStrict(response.getText()).isArray();
-					int resultCount = (int)receivedData.get(0).isNumber().doubleValue();
-					JSONArray results = receivedData.get(1).isArray();
+					try {
+						JSONObject resultWrapper = JSONParser.parseStrict(response.getText()).isObject();
 
-					fetchCallback.onFetchComplete(resultCount, System.currentTimeMillis() - timeTaken);
+						int resultCount = (int)resultWrapper.get("totalHits").isNumber().doubleValue();
+						fetchCallback.onFetchComplete(resultCount);
 
-					List<JSONObject> rows = listDataProvider.getList();
-					for (int i = 0; i < results.size(); i++) {
-						rows.add(results.get(i).isObject());
+						JSONArray results = resultWrapper.get("searchResult").isArray();
+						GWT.log("Received batch size = " + results.size());
+
+						List<JSONObject> rows = listDataProvider.getList();
+						for (int i = 0; i < results.size(); i++) {
+							rows.add(results.get(i).isObject());
+						}
+
+						from += results.size();
+					} catch (Exception e) {
+						Window.alert("An exception occured while parsing response. Response was: \n" + response.getText());
+						GWT.log("Call failed on the server or received malformed JSON.");
 					}
-
-					from += results.size();
 				}
 
 				public void onError(Request request, Throwable throwable) {
@@ -53,7 +57,7 @@ public class ResultFetcher implements ILazyFetcher<ListDataProvider<JSONObject>>
 				}
 			});
 		try {
-			Window.alert("Sending request: " + requestUrl);
+			GWT.log("Sending request: " + requestUrl);
 			builder.send();
 		} catch (RequestException e) {
 			Window.alert(e.getMessage());
@@ -67,6 +71,7 @@ public class ResultFetcher implements ILazyFetcher<ListDataProvider<JSONObject>>
 	public void flush() {
 		List<JSONObject> rows = listDataProvider.getList();
 		rows.clear();
+		from = 0;
 	}
 
 	public ListDataProvider<JSONObject> getDataProvider() {

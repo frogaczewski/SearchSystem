@@ -16,7 +16,7 @@ class SearchService {
 	def search(@QueryParam("query") query : String,
 	           @QueryParam("from") from : Int,
 		       @QueryParam("to") to : Int) : String = {
-		val results = SearcherFacade.search(query)
+		val results = SearcherFacade.search(query, from, to)
 		new Gson().toJson(new ServerResult(results._1, results._2))
 	}
 	

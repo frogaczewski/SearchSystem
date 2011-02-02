@@ -2,9 +2,6 @@ package pl.gda.pg.eti.sab.searchengine.client.ui.widgets;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiConstructor;
@@ -18,45 +15,44 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.NoSelectionModel;
-import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.RangeChangeEvent;
 import pl.gda.pg.eti.sab.searchengine.client.util.Settings;
 import pl.gda.pg.eti.sab.searchengine.client.util.data.ILazyFetcher;
-import pl.gda.pg.eti.sab.searchengine.client.util.data.ResultFetcher;
-import pl.gda.pg.eti.sab.searchengine.client.util.html.ResultHtmlRenderer;
-
-import java.util.List;
+import pl.gda.pg.eti.sab.searchengine.client.util.html.IHtmlRenderer;
 
 /**
  * @author Paweł Ogrodowczyk
+ *
+ * @param <Row> Row type.
+ * @param <RowRenderer> Row renderer type.
  */
-public class ResultTable extends Composite{
+public class ResultTable<Row, RowRenderer extends IHtmlRenderer> extends Composite{
 	interface ResultTableUiBinder extends UiBinder<VerticalPanel, ResultTable> {
 	}
 
 	private static ResultTableUiBinder ourUiBinder = GWT.create(ResultTableUiBinder.class);
 
-	@UiField(provided = true) protected CellTable<JSONObject> resultTable;
+	@UiField(provided = true) protected CellTable<Row> resultTable;
 	@UiField(provided = true) protected SimplePager resultPager;
 
-	private ILazyFetcher<ListDataProvider<JSONObject>> resultFetcher;
+	private ILazyFetcher<ListDataProvider<Row>> resultFetcher;
+	private RowRenderer rowRenderer;
 
 	@UiConstructor
 	public ResultTable(int pageSize) {
-		resultTable = new CellTable<JSONObject>(pageSize, new ProvidesKey<JSONObject>() {
+		resultTable = new CellTable<Row>(pageSize);/*, new ProvidesKey<JSONObject>() {
 			public Object getKey(JSONObject jsonObject) {
 				return jsonObject.get("url");
 			}
-		});
+		});*/
 
-		resultTable.setSelectionModel(new NoSelectionModel<JSONObject>());
+		resultTable.setSelectionModel(new NoSelectionModel<Row>());
 		initTableColumns();
 
 		SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
 		resultPager = new SimplePager(SimplePager.TextLocation.CENTER, pagerResources, false, 0, true);
 		resultPager.setPageSize(pageSize);
 		resultPager.setDisplay(resultTable);
-		resultPager.setVisible(false);
 
 		VerticalPanel rootElement = ourUiBinder.createAndBindUi(this);
 		initWidget(rootElement);
@@ -64,16 +60,14 @@ public class ResultTable extends Composite{
 
 	private void initTableColumns() {
 		SafeHtmlCell cell = new SafeHtmlCell();
-		Column<JSONObject, SafeHtml> column = new Column<JSONObject, SafeHtml>(cell) {
-
-			private final ResultHtmlRenderer htmlRenderer = new ResultHtmlRenderer();
+		Column<Row, SafeHtml> column = new Column<Row, SafeHtml>(cell) {
 
 			@Override
-			public SafeHtml getValue(JSONObject jsonObject) {
-				final JSONObject item = jsonObject;
+			public SafeHtml getValue(Row row) {
+				final Row item = row;
 				return new SafeHtml() {
 					public String asString() {
-						return htmlRenderer.render(item);
+						return rowRenderer.render(item);
 					}
 				};
 
@@ -93,8 +87,21 @@ public class ResultTable extends Composite{
 		Window.scrollTo(0, 0);
 	}
 
-	public void setResultFetcher(ILazyFetcher<ListDataProvider<JSONObject>> resultFetcher) {
+	public void setRowRenderer(RowRenderer rowRenderer) {
+		this.rowRenderer = rowRenderer;
+	}
+
+	public void setResultFetcher(ILazyFetcher<ListDataProvider<Row>> resultFetcher) {
 		this.resultFetcher = resultFetcher;
 		resultFetcher.getDataProvider().addDataDisplay(resultTable);
+	}
+
+	public void setVisible(boolean visible) {
+		resultTable.setVisible(visible);
+		resultPager.setVisible(visible);
+	}
+
+	public void setPage(int index) {
+		resultPager.setPage(index);
 	}
 }

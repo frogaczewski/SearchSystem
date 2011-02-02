@@ -1,6 +1,5 @@
 package pl.gda.pg.eti.sab.searchengine.client.util.data;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.view.client.AbstractDataProvider;
 
 /**

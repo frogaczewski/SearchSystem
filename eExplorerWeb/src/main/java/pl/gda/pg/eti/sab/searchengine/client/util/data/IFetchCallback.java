@@ -5,7 +5,7 @@ package pl.gda.pg.eti.sab.searchengine.client.util.data;
  */
 public interface IFetchCallback {
 
-	void onFetchComplete(int totalResults, long timeTaken);
+	void onFetchComplete(int totalResults);
 
 	void onFetchFailure();
 }

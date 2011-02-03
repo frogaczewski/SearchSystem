@@ -97,11 +97,15 @@ object htmlContentUtil {
 
 	/**
 	 * TODO rename
+	 *
 	 */
 	private def translate(source : Source, text : Option[String]) = {
 		val toTranslate = text.getOrElse("")
+		// html jericho does not support iso-8859-2. all ISO-8859-X are
+		// recognized as ISO-8859-1. in eExplorer case we except ISO-8859-2 value
+		// as the crawler is designed to index mostly polish content.
 		if (source.getEncoding.equalsIgnoreCase("ISO-8859-1")) {
-			val isoBytes = toTranslate.getBytes("ISO-8859-1")
+			val isoBytes = toTranslate.getBytes("ISO-8859-2")
 			Some(new String(isoBytes, "UTF-8"))
 		} else if (source.getEncoding.equalsIgnoreCase("ISO-8859-2")) {
 			val isoBytes = toTranslate.getBytes("ISO-8859-2")

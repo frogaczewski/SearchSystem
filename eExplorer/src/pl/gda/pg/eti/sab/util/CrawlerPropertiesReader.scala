@@ -29,5 +29,6 @@ object CrawlerPropertiesReader {
 	def serverPort = properties.get("pl.gda.eti.sab.server.port").asInstanceOf[String].toInt
 	def crawlerRobotsProtocol = properties.get("pl.gda.eti.sab.crawler.robots").asInstanceOf[String]
 	def rankerIterations = properties.get("pl.gda.eti.sab.ranker.iterations").asInstanceOf[String].toInt
+	def robotsThreadPoolSize = properties.get("pl.gda.eti.sab.crawler.robots.threadpool.size").asInstanceOf[String].toInt
 
 }

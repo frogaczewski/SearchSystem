@@ -1,7 +1,7 @@
 package pl.gda.pg.eti.sab
 
-import crawler.{Crawler, PageFactory}
 import actors.Actor
+import crawler.{RobotsProtocolAnalyzer, Crawler, PageFactory}
 import indexer.Indexer
 import pagerank.PageRanker
 import server.Server
@@ -17,6 +17,7 @@ object Explorer extends Actor with Logging {
 		log.info("Starting arachne");
 		Server.start
 		Crawler.start
+		RobotsProtocolAnalyzer.start
 		super.start
 	}
 

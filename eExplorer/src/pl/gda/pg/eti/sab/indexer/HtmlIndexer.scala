@@ -5,8 +5,8 @@ import java.io.File
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.index.IndexWriter
 import org.apache.lucene.util.{Version => LuceneVersion}
-import pl.gda.pg.eti.sab.crawler.PageEntity
 import pl.gda.pg.eti.sab.util.Logging
+import pl.gda.pg.eti.sab.crawler.{RobotsProtocolAnalyzer, PageEntity}
 
 /**
  * 
@@ -21,7 +21,7 @@ class HtmlIndexer(val pages : Iterator[PageEntity], val directory : String) exte
 		log.info("Indexing all documents")
 		val indexStartTime = System.currentTimeMillis
 		pages.foreach((page : PageEntity) => {
-			if (page.index) {
+			if (page.index && RobotsProtocolAnalyzer.isNotExcluded(page.url)) {
 				writer.addDocument(docFactory.buildDocument(page))
 			} else {
 				log.info("Page " + page.url + " is not indexed")
